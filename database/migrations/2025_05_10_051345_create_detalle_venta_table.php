@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('venta_id');
             $table->unsignedBigInteger('producto_id');
             $table->integer('cantidad');
+            $table->integer('subtotal');
             $table->decimal('precio_unitario', 10, 2);
             $table->timestamps();
             

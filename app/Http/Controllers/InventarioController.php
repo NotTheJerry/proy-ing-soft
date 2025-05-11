@@ -11,6 +11,8 @@ class InventarioController extends Controller
      */
     public function index()
     {
+        $this->requireRole('admin');
+        
         $inventarios = \App\Models\Inventario::with(['producto.categoria', 'producto.proveedor'])->paginate(10);
         $categorias = \App\Models\Categoria::all();
         
@@ -37,6 +39,8 @@ class InventarioController extends Controller
      */
     public function filtrarPorCategoria(Request $request)
     {
+        $this->requireRole('admin');
+        
         $categoria_id = $request->categoria_id;
         $stock = $request->stock;
         
@@ -88,6 +92,8 @@ class InventarioController extends Controller
      */
     public function actualizarCantidad(Request $request, $id)
     {
+        $this->requireRole('admin');
+        
         $request->validate([
             'cantidad_disponible' => 'required|numeric|min:0',
         ]);
@@ -105,6 +111,8 @@ class InventarioController extends Controller
      */
     public function stockBajo()
     {
+        $this->requireRole('admin');
+        
         // Asumiendo que un stock bajo es menos de 10 unidades
         $inventarios = \App\Models\Inventario::with(['producto.categoria', 'producto.proveedor'])
             ->where('cantidad_disponible', '<', 10)
@@ -119,6 +127,8 @@ class InventarioController extends Controller
      */
     public function generarReporte()
     {
+        $this->requireRole('admin');
+        
         $inventarios = \App\Models\Inventario::with(['producto.categoria', 'producto.proveedor'])->get();
         
         // Aquí idealmente generaríamos un PDF o Excel

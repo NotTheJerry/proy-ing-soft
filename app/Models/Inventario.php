@@ -8,6 +8,7 @@ class Inventario extends Model
 {
     protected $table = 'inventario';
     protected $primaryKey = 'id_inventario';
+    public $timestamps = true;
     
     protected $fillable = [
         'producto_id',

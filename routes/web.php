@@ -2,9 +2,19 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
+use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
-    return redirect()->route('inventario.index');
+    if (Auth::check()) {
+        // Si el usuario está autenticado, redirigir según el rol
+        if (Auth::user()->role === 'admin') {
+            return redirect()->route('inventario.index');
+        } else {
+            return redirect()->route('tienda.index');
+        }
+    }
+    // Si no está autenticado, redirigir al login
+    return redirect()->route('login');
 });
 
 // Rutas de autenticación
@@ -29,13 +39,45 @@ Route::middleware('auth')->group(function () {
     Route::put('/profile', [AuthController::class, 'updateProfile'])->name('profile.update');
 });
 
-// Rutas para la gestión de inventario (protegidas)
+// Redireccionamiento basado en rol después del login
 Route::middleware('auth')->group(function () {
-    Route::controller(\App\Http\Controllers\InventarioController::class)->prefix('inventario')->group(function () {
-        Route::get('/', 'index')->name('inventario.index');
-        Route::get('/stock-bajo', 'stockBajo')->name('inventario.stock-bajo');
-        Route::post('/filtrar', 'filtrarPorCategoria')->name('inventario.filtrar');
-        Route::patch('/actualizar/{id}', 'actualizarCantidad')->name('inventario.actualizar');
-        Route::get('/reporte', 'generarReporte')->name('inventario.reporte');
+    Route::get('/dashboard', function () {
+        if (Auth::user() && Auth::user()->role === 'admin') {
+            return redirect()->route('inventario.index');
+        } else {
+            return redirect()->route('tienda.index');
+        }
+    })->name('dashboard');
+});
+
+// Rutas públicas
+Route::controller(\App\Http\Controllers\TiendaController::class)->prefix('tienda')->group(function () {
+    Route::get('/', 'index')->name('tienda.index');
+    Route::get('/producto/{id}', 'mostrarProducto')->name('tienda.producto');
+});
+
+// Rutas protegidas (requieren autenticación)
+Route::middleware('auth')->group(function () {
+    // Rutas de inventario (solo administradores)
+    Route::prefix('inventario')->middleware('role:admin')->group(function () {
+            Route::controller(\App\Http\Controllers\InventarioController::class)->group(function () {
+                Route::get('/', 'index')->name('inventario.index');
+                Route::get('/stock-bajo', 'stockBajo')->name('inventario.stock-bajo');
+                Route::post('/filtrar', 'filtrarPorCategoria')->name('inventario.filtrar');
+                Route::patch('/actualizar/{id}', 'actualizarCantidad')->name('inventario.actualizar');
+                Route::get('/reporte', 'generarReporte')->name('inventario.reporte');
+            });
+    });
+
+    // Rutas de tienda que requieren autenticación y rol de cliente
+    Route::prefix('tienda')->middleware('role:cliente')->group(function () {
+            Route::controller(\App\Http\Controllers\TiendaController::class)->group(function () {
+                Route::get('/carrito', 'carrito')->name('tienda.carrito');
+                Route::post('/carrito/agregar', 'agregarAlCarrito')->name('tienda.carrito.agregar');
+                Route::post('/carrito/actualizar', 'actualizarCarrito')->name('tienda.carrito.actualizar');
+                Route::delete('/carrito/eliminar/{id}', 'eliminarDelCarrito')->name('tienda.carrito.eliminar');
+                Route::post('/comprar', 'procesarCompra')->name('tienda.comprar');
+                Route::get('/mis-compras', 'misCompras')->name('tienda.mis-compras');
+            });
     });
 });

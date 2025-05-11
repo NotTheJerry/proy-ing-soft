@@ -9,24 +9,24 @@ class Venta extends Model
     protected $primaryKey = 'id_venta';
     
     protected $fillable = [
+        'cliente_id',
         'fecha_venta',
         'total_venta',
         'metodo_pago',
-        'cliente_id',
-        'empleado_id',
+        'empleado_id'
     ];
     
     protected $casts = [
-        'fecha_venta' => 'date',
+        'fecha_venta' => 'datetime',
         'total_venta' => 'decimal:2'
     ];
     
     /**
-     * Obtiene el cliente al que pertenece esta venta.
+     * Obtiene el cliente (usuario) al que pertenece esta venta.
      */
     public function cliente()
     {
-        return $this->belongsTo(Cliente::class, 'cliente_id', 'id_cliente');
+        return $this->belongsTo(User::class, 'cliente_id', 'id');
     }
     
     /**

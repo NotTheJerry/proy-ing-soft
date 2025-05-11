@@ -29,7 +29,9 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $request->remember)) {
             $request->session()->regenerate();
-            return redirect()->intended(route('inventario.index'))->with('success', '¡Bienvenido de nuevo!');
+            
+            // Redireccionar al dashboard que decidirá según el rol
+            return redirect()->intended(route('dashboard'))->with('success', '¡Bienvenido de nuevo!');
         }
 
         return back()->withErrors([
@@ -48,6 +50,7 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
+            'role' => 'required|string|in:cliente,admin',
         ]);
 
         if ($validator->fails()) {
@@ -56,15 +59,23 @@ class AuthController extends Controller
                 ->withInput();
         }
 
+        $role = strtolower(trim($request->role ?? 'cliente'));
+        // Validar que el rol sea cliente o admin
+        if (!in_array($role, ['cliente', 'admin'])) {
+            $role = 'cliente';
+        }
+        
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => $role,
         ]);
 
         Auth::login($user);
 
-        return redirect()->route('inventario.index')->with('success', '¡Cuenta creada exitosamente!');
+        // Redireccionar al dashboard que decidirá según el rol
+        return redirect()->route('dashboard')->with('success', '¡Cuenta creada exitosamente!');
     }
 
     public function logout(Request $request)

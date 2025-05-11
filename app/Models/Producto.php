@@ -21,9 +21,6 @@ class Producto extends Model
     ];
     
     protected $casts = [
-        'tallas' => 'json',
-        'colores' => 'json',
-        'fecha_creacion' => 'date',
         'precio' => 'decimal:2'
     ];
     
@@ -36,11 +33,19 @@ class Producto extends Model
     }
     
     /**
-     * Obtiene el proveedor que suministra este producto.
+     * Obtiene los detalles de ventas asociados a este producto.
      */
-    public function proveedor()
+    public function detallesVentas()
     {
-        return $this->belongsTo(Proveedor::class, 'proveedor_id', 'id_proveedor');
+        return $this->hasMany(DetalleVenta::class, 'id_producto', 'id_producto');
+    }
+    
+    /**
+     * Obtiene el inventario asociado a este producto.
+     */
+    public function inventario()
+    {
+        return $this->hasOne(Inventario::class, 'producto_id', 'id_producto');
     }
     
     /**
@@ -52,14 +57,6 @@ class Producto extends Model
     }
     
     /**
-     * Obtiene los detalles de ventas asociados a este producto.
-     */
-    public function detallesVentas()
-    {
-        return $this->hasMany(DetalleVenta::class, 'producto_id', 'id_producto');
-    }
-    
-    /**
      * Obtiene las promociones asociadas a este producto.
      */
     public function promociones()
@@ -68,10 +65,10 @@ class Producto extends Model
     }
     
     /**
-     * Obtiene el inventario asociado a este producto.
+     * Obtiene el proveedor de este producto.
      */
-    public function inventario()
+    public function proveedor()
     {
-        return $this->hasOne(Inventario::class, 'producto_id', 'id_producto');
+        return $this->belongsTo(Proveedor::class, 'proveedor_id', 'id_proveedor');
     }
 }

@@ -20,5 +20,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         \Illuminate\Pagination\Paginator::useBootstrap();
+        
+        // Registrar el middleware de roles
+        $router = $this->app['router'];
+        $router->aliasMiddleware('role', \App\Http\Middleware\CheckRole::class);
     }
 }

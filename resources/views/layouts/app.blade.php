@@ -14,14 +14,15 @@
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-                <div class="position-sticky pt-3">
+            <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">                <div class="position-sticky pt-3">
                     <h5 class="p-3">Sistema de Gestión</h5>
                     <hr>
                     <ul class="nav flex-column">
+                        @if(auth()->check() && auth()->user()->role == 'admin')
+                        <!-- Menú para Administradores -->
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->is('/') ? 'active' : '' }}" href="/">
-                                <i class="fas fa-home me-2"></i> Inicio
+                            <a class="nav-link {{ request()->is('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
+                                <i class="fas fa-tachometer-alt me-2"></i> Dashboard
                             </a>
                         </li>
                         <li class="nav-item">
@@ -59,6 +60,39 @@
                                 <i class="fas fa-chart-bar me-2"></i> Reportes
                             </a>
                         </li>
+                        @elseif(auth()->check() && auth()->user()->role == 'cliente')
+                        <!-- Menú para Clientes -->
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->is('tienda') ? 'active' : '' }}" href="{{ route('tienda.index') }}">
+                                <i class="fas fa-store me-2"></i> Tienda
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->is('tienda/carrito') ? 'active' : '' }}" href="{{ route('tienda.carrito') }}">
+                                <i class="fas fa-shopping-cart me-2"></i> Mi Carrito
+                                @if(session('carrito') && count(session('carrito')) > 0)
+                                    <span class="badge bg-primary">{{ count(session('carrito')) }}</span>
+                                @endif
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->is('tienda/mis-compras') ? 'active' : '' }}" href="{{ route('tienda.mis-compras') }}">
+                                <i class="fas fa-shopping-bag me-2"></i> Mis Compras
+                            </a>
+                        </li>
+                        @else
+                        <!-- Menú para Visitantes -->
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->is('login') ? 'active' : '' }}" href="{{ route('login') }}">
+                                <i class="fas fa-sign-in-alt me-2"></i> Iniciar Sesión
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->is('register') ? 'active' : '' }}" href="{{ route('register') }}">
+                                <i class="fas fa-user-plus me-2"></i> Registrarse
+                            </a>
+                        </li>
+                        @endif
                     </ul>
                 </div>
             </div>
