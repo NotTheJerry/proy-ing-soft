@@ -59,3 +59,10 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## Comandos para el proyecto
+
+composer install - Instalar las dependencias del proyecto (composer)
+npm install - Instalar las dependencias del proyecto (node)
+php artisan migrate:fresh --seed - Ejecutar las migraciones y seeders para la creacion de las tablas y colocacion de datos de prueba
+php artisan serve - Levantar el proyecto
