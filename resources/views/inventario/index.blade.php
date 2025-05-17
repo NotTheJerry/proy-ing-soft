@@ -8,10 +8,14 @@
         <i class="fas fa-exclamation-triangle me-1"></i> Ver Stock Bajo
     </a>
 </div>
-<div class="btn-group me-2">
-    <a href="{{ route('inventario.reporte') }}" class="btn btn-sm btn-outline-primary">
+<div class="btn-group">
+    <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
         <i class="fas fa-file-export me-1"></i> Generar Reporte
-    </a>
+    </button>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="{{ route('inventario.reporte', ['formato' => 'pdf']) }}"><i class="fas fa-file-pdf me-1"></i> Exportar como PDF</a></li>
+        {{-- <li><a class="dropdown-item" href="{{ route('inventario.reporte', ['formato' => 'excel']) }}"><i class="fas fa-file-excel me-1"></i> Exportar como Excel</a></li> --}}
+    </ul>
 </div>
 @endsection
 

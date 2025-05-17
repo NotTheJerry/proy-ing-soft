@@ -71,13 +71,19 @@ Route::middleware('auth')->group(function () {
 
     // Rutas de tienda que requieren autenticación y rol de cliente
     Route::prefix('tienda')->middleware('role:cliente')->group(function () {
-            Route::controller(\App\Http\Controllers\TiendaController::class)->group(function () {
-                Route::get('/carrito', 'carrito')->name('tienda.carrito');
-                Route::post('/carrito/agregar', 'agregarAlCarrito')->name('tienda.carrito.agregar');
-                Route::post('/carrito/actualizar', 'actualizarCarrito')->name('tienda.carrito.actualizar');
-                Route::delete('/carrito/eliminar/{id}', 'eliminarDelCarrito')->name('tienda.carrito.eliminar');
-                Route::post('/comprar', 'procesarCompra')->name('tienda.comprar');
-                Route::get('/mis-compras', 'misCompras')->name('tienda.mis-compras');
-            });
+        // Rutas para el carrito usando el nuevo controlador
+        Route::controller(\App\Http\Controllers\CarritoController::class)->group(function () {
+            Route::get('/carrito', 'show')->name('tienda.carrito');
+            Route::post('/carrito/agregar', 'add')->name('tienda.carrito.agregar');
+            Route::post('/carrito/actualizar', 'update')->name('tienda.carrito.actualizar');
+            Route::delete('/carrito/eliminar/{id}', 'remove')->name('tienda.carrito.eliminar');
+            Route::post('/carrito/vaciar', 'clear')->name('tienda.carrito.vaciar');
+        });
+        
+        // Otras rutas de la tienda
+        Route::controller(\App\Http\Controllers\TiendaController::class)->group(function () {
+            Route::post('/comprar', 'procesarCompra')->name('tienda.comprar');
+            Route::get('/mis-compras', 'misCompras')->name('tienda.mis-compras');
+        });
     });
 });

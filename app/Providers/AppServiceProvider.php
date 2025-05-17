@@ -11,7 +11,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Register PDF facade
+        $this->app->singleton('pdf', function ($app) {
+            return new \Barryvdh\DomPDF\PDF($app['dompdf.options'], $app['config'], $app['files'], $app['view']);
+        });
+        
+        // Register aliases
+        $this->app->alias('PDF', \Barryvdh\DomPDF\Facade\Pdf::class);
+        $this->app->alias('Excel', \Maatwebsite\Excel\Facades\Excel::class);
     }
 
     /**

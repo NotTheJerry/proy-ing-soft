@@ -75,32 +75,16 @@ class TiendaController extends Controller
      */
     public function carrito()
     {
-        // Activar debug para mostrar errores
-        ini_set('display_errors', 1);
-        error_reporting(E_ALL);
+        $this->requireRole('cliente');
 
         try {
-            // Comprobamos si el usuario está autenticado
-            if (!Auth::check()) {
-                return redirect()->route('login')
-                    ->with('error', 'Debes iniciar sesión para ver tu carrito');
-            }
-    
-            // Comprobamos si tiene el rol adecuado
-            if (Auth::user()->role !== 'cliente') {
-                return view('tienda.error', [
-                    'mensaje' => 'Acceso denegado. Solo los clientes pueden acceder al carrito.',
-                    'rol_actual' => Auth::user()->role
-                ]);
-            }
+            // Usar el servicio de carrito para obtener los datos
+            $cartService = new \App\Services\CartService();
+            $cartData = $cartService->getCart();
             
-            // Recuperamos el carrito con una comprobación de formato
-            $carrito = Session::get('carrito', []);
-            if (!is_array($carrito)) {
-                $carrito = [];
-            }
+            $carrito = $cartData['items'];
+            $total = $cartData['total'];
             
-            $total = 0;
             $debug_info = [];
             // $debug_info[] = "Número de items en el carrito: " . count($carrito);
             
@@ -179,50 +163,15 @@ class TiendaController extends Controller
         $cantidad = $request->cantidad;
         
         try {
-            // Verificar stock disponible
-            $producto = Producto::with('inventario')->find($idProducto);
-            if (!$producto) {
-                return back()->with('error', 'El producto no existe');
+            // Usar el servicio de carrito para agregar el producto
+            $cartService = new \App\Services\CartService();
+            $result = $cartService->addToCart($idProducto, $cantidad);
+            
+            if ($result['success']) {
+                return back()->with('success', $result['message']);
+            } else {
+                return back()->with('error', $result['message']);
             }
-            
-            if (!$producto->inventario) {
-                return back()->with('error', 'El producto no tiene inventario asociado');
-            }
-            
-            if ($producto->inventario->cantidad_disponible < $cantidad) {
-                return back()->with('error', 'No hay suficiente stock disponible. Stock actual: ' . $producto->inventario->cantidad_disponible);
-            }
-            
-            // Obtener el carrito actual
-            $carrito = Session::get('carrito', []);
-            
-            // Verificar si el producto ya está en el carrito
-            $encontrado = false;
-            foreach ($carrito as &$item) {
-                if ($item['id_producto'] == $idProducto) {
-                    // Verificar que la cantidad total no exceda el stock
-                    $nuevaCantidad = $item['cantidad'] + $cantidad;
-                    if ($nuevaCantidad > $producto->inventario->cantidad_disponible) {
-                        return back()->with('error', 'No hay suficiente stock disponible para la cantidad total solicitada');
-                    }
-                    
-                    $item['cantidad'] = $nuevaCantidad;
-                    $encontrado = true;
-                    break;
-                }
-            }
-            
-            // Si no está en el carrito, agregarlo
-            if (!$encontrado) {
-                $carrito[] = [
-                    'id_producto' => $idProducto,
-                    'cantidad' => $cantidad,
-                    'precio' => $producto->precio
-                ];
-            }
-            
-            Session::put('carrito', $carrito);
-            return back()->with('success', 'Producto agregado al carrito: ' . $producto->descripcion);
         } catch (\Exception $e) {
             return back()->with('error', 'Error al agregar el producto al carrito: ' . $e->getMessage());
         }

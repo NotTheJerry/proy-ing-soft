@@ -125,21 +125,62 @@ class InventarioController extends Controller
     /**
      * Generar reporte de inventario
      */
-    public function generarReporte()
+    public function generarReporte(Request $request)
     {
         $this->requireRole('admin');
         
+        // Obtener todos los inventarios con sus relaciones
         $inventarios = \App\Models\Inventario::with(['producto.categoria', 'producto.proveedor'])->get();
         
-        // Aquí idealmente generaríamos un PDF o Excel
+        // Calcular datos de resumen para el reporte
+        $totalProductos = \App\Models\Inventario::count();
+        $stockDisponible = \App\Models\Inventario::sum('cantidad_disponible');
+        $stockBajo = \App\Models\Inventario::where('cantidad_disponible', '<', 10)
+            ->where('cantidad_disponible', '>', 0)
+            ->count();
+        $productosAgotados = \App\Models\Inventario::where('cantidad_disponible', '<=', 0)->count();
         
-        // Por ahora simplemente creamos un registro en la tabla reportes
-        \App\Models\Reporte::create([
+        // Agrupar productos por categoría para el reporte PDF
+        $inventariosPorCategoria = $inventarios->groupBy(function ($item) {
+            return $item->producto->categoria ? $item->producto->categoria->nombre : 'Sin categoría';
+        });
+        
+        // Registrar la generación del reporte
+        $reporte = \App\Models\Reporte::create([
             'tipo_reporte' => 'Inventario',
             'fecha_generacion' => now(),
             'contenido' => 'Reporte de inventario generado el ' . now()->format('Y-m-d H:i:s'),
         ]);
         
-        return redirect()->back()->with('success', 'Reporte generado correctamente');
+        // Determinar el formato del reporte (pdf o excel)
+        $formato = $request->input('formato', 'pdf');
+        
+        if ($formato === 'excel') {
+            try {
+                // Generar reporte en Excel
+                return app(\App\Exports\InventarioExport::class)->export();
+            } catch (\Exception $e) {
+                return redirect()->back()->with('error', 'Error al generar el reporte Excel: ' . $e->getMessage());
+            }
+        } else {
+            try {
+                // Generar reporte en PDF usando el servicio dedicado
+                $pdfService = new \App\Services\PDFService();
+                $data = compact(
+                    'inventariosPorCategoria',
+                    'totalProductos',
+                    'stockDisponible',
+                    'stockBajo',
+                    'productosAgotados'
+                );
+                return $pdfService->downloadPDF(
+                    'inventario.pdf.reporte', 
+                    $data, 
+                    'reporte_inventario_' . now()->format('Y-m-d') . '.pdf'
+                );
+            } catch (\Exception $e) {
+                return redirect()->back()->with('error', 'Error al generar el reporte PDF: ' . $e->getMessage());
+            }
+        }
     }
 }

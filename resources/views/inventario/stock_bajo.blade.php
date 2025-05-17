@@ -28,11 +28,16 @@
     <div class="col-md-12">
         <div class="card">
             <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">Productos con Stock Bajo</h5>
-                <div class="btn-group">
-                    <button type="button" class="btn btn-sm btn-outline-secondary">
-                        <i class="fas fa-print me-1"></i> Imprimir
+                <h5 class="card-title mb-0">Productos con Stock Bajo</h5>                <div class="btn-group">
+                    <button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-file-export me-1"></i> Exportar Reporte
                     </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ route('inventario.reporte', ['formato' => 'pdf']) }}"><i class="fas fa-file-pdf me-1"></i> Exportar como PDF</a></li>
+                        <li><a class="dropdown-item" href="{{ route('inventario.reporte', ['formato' => 'excel']) }}"><i class="fas fa-file-excel me-1"></i> Exportar como Excel</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" onclick="window.print(); return false;"><i class="fas fa-print me-1"></i> Imprimir esta página</a></li>
+                    </ul>
                 </div>
             </div>
             <div class="card-body p-0">

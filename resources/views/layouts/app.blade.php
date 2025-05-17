@@ -173,19 +173,18 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Bootstrap Bundle with Popper -->
+    </div>    <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Optional JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Aquí puedes agregar código JavaScript adicional
+            // Initialize Bootstrap dropdowns
+            var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'))
+            var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
+                return new bootstrap.Dropdown(dropdownToggleEl)
+            })
         });
     </script>
-    
-        <!-- Bootstrap JS Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     @yield('scripts')
 </body>
