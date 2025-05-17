@@ -34,7 +34,7 @@
         </div>
     @endif
     
-    @if(isset($debug_info) && count($debug_info) > 0)
+    {{-- @if(isset($debug_info) && count($debug_info) > 0)
         <div class="alert alert-secondary">
             <h4>Información de depuración:</h4>
             <ul>
@@ -43,7 +43,7 @@
                 @endforeach
             </ul>
         </div>
-    @endif
+    @endif --}}
 
     @if(empty($carrito))
         <div class="alert alert-info" role="alert">
@@ -119,6 +119,7 @@
                                                         @method('DELETE')
                                                         <button type="submit" class="btn btn-sm btn-outline-danger">
                                                             <i class="bi bi-trash"></i>
+                                                            Eliminar
                                                         </button>
                                                     </form>
                                                 </td>
@@ -127,11 +128,11 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="mt-3">
+                            {{-- <div class="mt-3">
                                 <button type="submit" class="btn btn-outline-primary">
                                     <i class="bi bi-arrow-clockwise"></i> Actualizar carrito
                                 </button>
-                            </div>
+                            </div> --}}
                         </form>
                     </div>
                 </div>

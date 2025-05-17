@@ -88,6 +88,7 @@
                                     <input type="hidden" name="cantidad" value="1">
                                     <button type="submit" class="btn btn-primary">
                                         <i class="bi bi-cart-plus"></i>
+                                        Agregar
                                     </button>
                                 </form>
                             </div>
